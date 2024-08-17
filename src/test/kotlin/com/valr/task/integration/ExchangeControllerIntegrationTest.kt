@@ -5,6 +5,8 @@ import com.valr.task.service.ExchangeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -13,9 +15,9 @@ import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.*
 
 @SpringBootTest
@@ -59,6 +61,11 @@ class ExchangeControllerIntegrationTest {
     fun `test place limit order`() {
         val id = UUID.randomUUID().toString()
 
+        // Create an ArgumentCaptor to capture the Order object passed to placeOrder
+        val orderCaptor = argumentCaptor<Order>()
+
+        whenever(exchangeService.placeOrder(orderCaptor.capture())).thenReturn(id)
+
         val orderRequestJson = """
             {
                 "id": "$id",
@@ -69,16 +76,6 @@ class ExchangeControllerIntegrationTest {
             }
         """.trimIndent()
 
-        `when`(
-            exchangeService.placeOrder(
-                Order(
-                    id = id, price = BigDecimal("20000.00"), quantity = BigDecimal("0.5"), side = OrderSide.BUY, user = testUserId, status = OrderStatus.OPEN, filledQuantity = BigDecimal.ZERO, pair = "BTCUSDC"
-                )
-            )
-        ).thenReturn(
-            id
-        )
-
         mockMvc.perform(
             post("/orders/limit")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,6 +84,12 @@ class ExchangeControllerIntegrationTest {
         )
             .andExpect(status().isAccepted)
             .andExpect(content().string(id))
+
+        val capturedOrder = orderCaptor.firstValue
+        assert(capturedOrder.user == testUserId) { "User ID was not correctly set" }
+        assert(capturedOrder.price == BigDecimal("20000.00")) { "Price was not correctly set" }
+        assert(capturedOrder.quantity == BigDecimal("0.5")) { "Quantity was not correctly set" }
+        assert(capturedOrder.pair == "BTCUSDC") { "Currency pair was not correctly set" }
     }
 
     @Test
@@ -208,4 +211,41 @@ class ExchangeControllerIntegrationTest {
             .andExpect(status().isOk)
             .andExpect(content().json(orderBookJson))
     }
+
+    @Test
+    fun `test orderStatus endpoint returns correct status`() {
+        val currencyPair = "BTCUSDC"
+        val orderId = "test-order-id"
+
+        val testOrderStatusResponse = OrderStatusResponse(
+            orderId = orderId,
+            orderStatusType = OrderStatus.OPEN,
+            currencyPair = currencyPair,
+            originalPrice = "20000.00",
+            remainingQuantity = "1.0",
+            originalQuantity = "1.0",
+            orderSide = OrderSide.BUY,
+            orderType = "limit",
+            failedReason = "failed",
+            orderUpdatedAt = Instant.now().toString(),
+            orderCreatedAt = Instant.now().toString()
+        )
+
+        `when`(exchangeService.orderStatus(currencyPair, orderId))
+            .thenReturn(listOf(testOrderStatusResponse))
+
+        mockMvc.perform(
+            get("/orders/$currencyPair/status/$orderId")
+                .with(httpBasic(testUserId, testPassword))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$[0].orderId").value(orderId))
+            .andExpect(jsonPath("$[0].orderStatusType").value(OrderStatus.OPEN.toString()))
+            .andExpect(jsonPath("$[0].currencyPair").value(currencyPair))
+            .andExpect(jsonPath("$[0].originalPrice").value("20000.00"))
+            .andExpect(jsonPath("$[0].remainingQuantity").value("1.0"))
+            .andExpect(jsonPath("$[0].orderSide").value(OrderSide.BUY.toString()))
+    }
+
 }

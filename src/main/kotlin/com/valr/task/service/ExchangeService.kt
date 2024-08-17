@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -23,6 +22,7 @@ class ExchangeService(
     private val trades: MutableList<Trade> = mutableListOf()
     private val orderBookSequence = AtomicLong(0)
     private val tradeSequence = AtomicLong(0)
+    private val allOrders: MutableMap<String, Order> = mutableMapOf()
 
     fun orderBook(pair: String): OrderBookResponse {
         val currencyPair: CurrencyPair = getCurrencyPair(pair)
@@ -34,7 +34,7 @@ class ExchangeService(
 
         return OrderBookResponse(
             asks = allOrders,
-            lastChange = LocalDateTime.now().toString(),
+            lastChange = Instant.now().toString(),
             sequenceNumber = orderBookSequence.get()
         )
     }
@@ -44,24 +44,23 @@ class ExchangeService(
         side: OrderSide,
         currencyPair: CurrencyPair
     ): List<OrderSummary> {
-        val orderSummaryMap: MutableMap<BigDecimal, OrderSummary> = mutableMapOf()
-        for (order in orders) {
-            val key = order.price
-            val existingSummary = orderSummaryMap[key]
-            if (existingSummary != null) {
-                existingSummary.quantity = (BigDecimal(existingSummary.quantity) + order.remainingQuantity).toString()
-                existingSummary.orderCount += 1
-            } else {
-                orderSummaryMap[key] = OrderSummary(
-                    price = order.price.toString(),
-                    quantity = order.remainingQuantity.toString(),
-                    orderCount = 1,
-                    side = side,
-                    currencyPair = currencyPair.shortName
-                )
+        return orders.groupBy { it.price }
+            .map { (price, orders) ->
+                orders.fold(
+                    OrderSummary(
+                        price = price.toString(),
+                        quantity = BigDecimal.ZERO.toString(),
+                        orderCount = 0,
+                        side = side,
+                        currencyPair = currencyPair.shortName
+                    )
+                ) { summary, order ->
+                    summary.copy(
+                        quantity = (BigDecimal(summary.quantity) + order.remainingQuantity).toString(),
+                        orderCount = summary.orderCount + 1
+                    )
+                }
             }
-        }
-        return orderSummaryMap.values.toList()
     }
 
     fun placeOrder(order: Order): String {
@@ -72,14 +71,34 @@ class ExchangeService(
         if (order.side == OrderSide.BUY) {
             val totalCost = order.quantity * order.price
             val balance = user.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
-            if (balance < totalCost) throw Exception("Insufficient balance for user ${user.id} to place order.")
-            user.wallet.quoteBalances[currencyPair.quoteCurrency] = balance - totalCost
+            if (balance < totalCost) {
+                order.failedReason = "Insufficient balance for user ${user.id} to place order."
+                order.status = OrderStatus.FAILED
+                order.updatedAt = Instant.now().toString()
+            } else {
+                user.wallet.quoteBalances[currencyPair.quoteCurrency] = balance - totalCost
+                placeOrder(currencyPair, order)
+            }
         } else {
             val balance = user.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO
-            if (balance < order.quantity) throw Exception("Insufficient balance for user ${user.id} to place order.")
-            user.wallet.baseBalances[currencyPair.baseCurrency] = balance - order.quantity
+            if (balance < order.quantity) {
+                order.failedReason = "Insufficient balance for user ${user.id} to place order."
+                order.status = OrderStatus.FAILED
+                order.updatedAt = Instant.now().toString()
+            } else {
+                user.wallet.baseBalances[currencyPair.baseCurrency] = balance - order.quantity
+                placeOrder(currencyPair, order)
+            }
         }
 
+        orderBookSequence.incrementAndGet()
+
+        allOrders[order.id] = order
+
+        return order.id
+    }
+
+    private fun placeOrder(currencyPair: CurrencyPair, order: Order) {
         val buyQueue = buyOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareByDescending<Order> { it.price }) }
         val sellQueue = sellOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareBy<Order> { it.price }) }
 
@@ -88,10 +107,6 @@ class ExchangeService(
         } else {
             matchOrder(order, buyQueue, sellQueue, currencyPair)
         }
-
-        orderBookSequence.incrementAndGet()
-
-        return order.id
     }
 
     private fun matchOrder(
@@ -109,7 +124,7 @@ class ExchangeService(
             ) {
                 val tradeQuantity = minOf(buyOrSellOrder.remainingQuantity, potentialMatch.remainingQuantity)
 
-                applyTrade(buyOrSellOrder, potentialMatch, potentialMatch.price, tradeQuantity, currencyPair)
+                trade(buyOrSellOrder, potentialMatch, potentialMatch.price, tradeQuantity, currencyPair)
 
                 potentialMatch.filledQuantity += tradeQuantity
                 potentialMatch.updateStatus()
@@ -133,7 +148,7 @@ class ExchangeService(
         }
     }
 
-    private fun applyTrade(buyOrSellOrder: Order, matchedOrder: Order, tradePrice: BigDecimal, tradeQuantity: BigDecimal, currencyPair: CurrencyPair) {
+    private fun trade(buyOrSellOrder: Order, matchedOrder: Order, tradePrice: BigDecimal, tradeQuantity: BigDecimal, currencyPair: CurrencyPair) {
         val buyer: User
         val seller: User
         val makerOrder: Order = matchedOrder // The matched order is already in the order book, hence it's the Maker
@@ -182,6 +197,29 @@ class ExchangeService(
                 quoteVolume = (tradeQuantity * tradePrice).toString()
             )
         )
+
+        buyOrSellOrder.updatedAt = Instant.now().toString()
+        matchedOrder.updatedAt = Instant.now().toString()
+    }
+
+    fun orderStatus(currencyPair: String, orderId: String): List<OrderStatusResponse> {
+        return allOrders.values.filter { order ->
+            order.pair == currencyPair && order.id == orderId
+        }.map { order ->
+            OrderStatusResponse(
+                orderId = order.id,
+                orderStatusType = order.status,
+                currencyPair = order.pair,
+                originalPrice = order.price.toString(),
+                remainingQuantity = order.remainingQuantity.toString(),
+                originalQuantity = order.quantity.toString(),
+                orderSide = order.side,
+                orderType = order.orderType,
+                failedReason = order.failedReason,
+                orderUpdatedAt = order.updatedAt.toString(),
+                orderCreatedAt = order.createdAt.toString()
+            )
+        }
     }
 
     fun cancelOrder(orderId: String, pair: String) {

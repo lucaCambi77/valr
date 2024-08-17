@@ -1,9 +1,6 @@
 package com.valr.task.controller
 
-import com.valr.task.domain.Order
-import com.valr.task.domain.OrderBookResponse
-import com.valr.task.domain.OrderSide
-import com.valr.task.domain.Trade
+import com.valr.task.domain.*
 import com.valr.task.service.ExchangeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -53,6 +50,11 @@ class ExchangeController(val exchangeService: ExchangeService) {
         val side: OrderSide,
         val pair: String
     )
+
+    @GetMapping("/orders/{currencyPair}/status/{orderId}")
+    fun orderStatus(@PathVariable currencyPair: String, @PathVariable orderId: String): ResponseEntity<List<OrderStatusResponse>> {
+        return ResponseEntity.ok(exchangeService.orderStatus(currencyPair, orderId))
+    }
 
     @DeleteMapping("/orders/order")
     fun cancelOrder(@RequestBody request: CancelRequest): ResponseEntity<Void> {
