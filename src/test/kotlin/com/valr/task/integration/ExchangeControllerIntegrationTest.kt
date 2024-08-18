@@ -137,7 +137,7 @@ class ExchangeControllerIntegrationTest {
             ]
         """.trimIndent()
 
-        `when`(exchangeService.getRecentTrades("BTCUSDC", 10)).thenReturn(
+        `when`(exchangeService.tradeHistory("BTCUSDC", 10)).thenReturn(
             listOf(
                 Trade(id = "trade1", price = "20000.00", quantity = "0.5", currencyPair = "BTCUSDC", takerSide = OrderSide.BUY, tradedAt = "2024-08-16T12:00:00Z", quoteVolume = "10000.00", sequenceId = 1),
                 Trade(id = "trade2", price = "19900.00", quantity = "1.0", currencyPair = "BTCUSDC", takerSide = OrderSide.SELL, tradedAt = "2024-08-16T12:01:00Z", quoteVolume = "10000.00", sequenceId = 1)

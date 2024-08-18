@@ -151,7 +151,7 @@ class ExchangeServiceTradeHistoryTest {
     @Test
     fun `test recent trades for multiple pairs with limit`() {
         // Test for BTCUSDC
-        val btcTrades = exchangeService.getRecentTrades("BTCUSDC", 10)
+        val btcTrades = exchangeService.tradeHistory("BTCUSDC", 10)
         assertEquals(2, btcTrades.size)
         assertEquals("BTCUSDC", btcTrades[0].currencyPair)
         assertEquals(BigDecimal("20000.00"), BigDecimal(btcTrades[0].price))
@@ -162,7 +162,7 @@ class ExchangeServiceTradeHistoryTest {
         assertEquals(BigDecimal("0.5"), BigDecimal(btcTrades[1].quantity))
 
         // Test for ETHUSDC
-        val ethTrades = exchangeService.getRecentTrades("ETHUSDC", 10)
+        val ethTrades = exchangeService.tradeHistory("ETHUSDC", 10)
         assertEquals(1, ethTrades.size)
         assertEquals("ETHUSDC", ethTrades[0].currencyPair)
         assertEquals(BigDecimal("1500.00"), BigDecimal(ethTrades[0].price))
@@ -172,7 +172,7 @@ class ExchangeServiceTradeHistoryTest {
     @Test
     fun `test trades sorted by trade time descending`() {
         val currencyPair = "BTCUSDC"
-        val recentTrades = exchangeService.getRecentTrades(currencyPair, 10)
+        val recentTrades = exchangeService.tradeHistory(currencyPair, 10)
 
         // Ensure trades are sorted by tradedAt descending
         val sortedTrades = recentTrades.sortedByDescending { Instant.parse(it.tradedAt) }
@@ -183,7 +183,7 @@ class ExchangeServiceTradeHistoryTest {
     fun `test recent trades limit`() {
         // Limit the number of trades returned
         val currencyPair = "BTCUSDC"
-        val limitedTrades = exchangeService.getRecentTrades(currencyPair, 1)
+        val limitedTrades = exchangeService.tradeHistory(currencyPair, 1)
 
         // Ensure that only the last trade is returned
         assertEquals(1, limitedTrades.size)
@@ -191,14 +191,14 @@ class ExchangeServiceTradeHistoryTest {
 
     @Test
     fun `test recent trades include correct orders`() {
-        val btcTrades = exchangeService.getRecentTrades("BTCUSDC", 10)
+        val btcTrades = exchangeService.tradeHistory("BTCUSDC", 10)
 
         // Check the trade's details for BTCUSDC
         assertTrue(btcTrades.any { it.price == "20000.00" && it.quantity == "0.5" })
         assertEquals("BUY", btcTrades[0].takerSide.name)
         assertEquals("SELL", btcTrades[1].takerSide.name)
 
-        val ethTrades = exchangeService.getRecentTrades("ETHUSDC", 10)
+        val ethTrades = exchangeService.tradeHistory("ETHUSDC", 10)
 
         // Check the trade's details for ETHUSDC
         assertTrue(ethTrades.any { it.price == "1500.00" && it.quantity == "2" })
@@ -207,7 +207,7 @@ class ExchangeServiceTradeHistoryTest {
 
     @Test
     fun `test no trades returned for unknown currency pair`() {
-        val trades = exchangeService.getRecentTrades("LTCUSDC", 10)
+        val trades = exchangeService.tradeHistory("LTCUSDC", 10)
         assertTrue(trades.isEmpty())
     }
 

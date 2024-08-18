@@ -17,8 +17,8 @@ class SecurityConfig(private val customUserDetailsService: CustomUserDetailsServ
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .authorizeHttpRequests { authz ->
-                authz
+            .authorizeHttpRequests { authRequest ->
+                authRequest
                     .requestMatchers("/account/create").permitAll()  // Allow unauthenticated access to user creation
                     .anyRequest().authenticated()
             }
@@ -27,7 +27,6 @@ class SecurityConfig(private val customUserDetailsService: CustomUserDetailsServ
                 csrfConfigurer.disable()
             }
             .authenticationProvider(authenticationProvider())
-
 
         return http.build()
     }

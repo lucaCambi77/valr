@@ -263,7 +263,7 @@ class ExchangeService(
         orderBookSequence.incrementAndGet()
     }
 
-    fun getRecentTrades(currencyPair: String, limit: Int): List<Trade> {
+    fun tradeHistory(currencyPair: String, limit: Int): List<Trade> {
         return trades.filter { it.currencyPair == currencyPair }
             .sortedByDescending { it.tradedAt }
             .take(limit)

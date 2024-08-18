@@ -19,11 +19,11 @@ class ExchangeController(val exchangeService: ExchangeService) {
     }
 
     @GetMapping("/{currencyPair}/tradehistory")
-    fun recentTrades(
+    fun tradeHistory(
         @PathVariable currencyPair: String,
         @RequestParam(defaultValue = "10") limit: Int
     ): ResponseEntity<List<Trade>> {
-        return ResponseEntity.ok(exchangeService.getRecentTrades(currencyPair, limit))
+        return ResponseEntity.ok(exchangeService.tradeHistory(currencyPair, limit))
     }
 
     @PostMapping("/orders/limit")
