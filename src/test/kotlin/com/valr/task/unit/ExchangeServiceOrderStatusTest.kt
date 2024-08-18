@@ -293,4 +293,45 @@ class ExchangeServiceOrderStatusTest {
         assertEquals(orderId, response.orderId)
         assertEquals(currencyPairSymbol, response.currencyPair)
     }
+
+    @Test
+    fun `test placeOrder fails when user matches with their own order`() {
+        val userId = "user"
+
+        val user = User(
+            id = userId, wallet = Wallet(baseBalances = mutableMapOf("BTC" to BigDecimal("1.0")), quoteBalances = mutableMapOf("USDC" to BigDecimal("20000.00")))
+        )
+
+        `when`(userService.get(userId)).thenReturn(user)
+
+        val order = Order(
+            id = "order1",
+            user = userId,
+            pair = "BTCUSDC",
+            price = BigDecimal("10000"),
+            quantity = BigDecimal("1.0"),
+            side = OrderSide.BUY
+        )
+
+        val matchingOrder = Order(
+            id = "order2",
+            user = userId,
+            pair = "BTCUSDC",
+            price = BigDecimal("10000"),
+            quantity = BigDecimal("1.0"),
+            side = OrderSide.SELL
+        )
+
+        // Pre-place the matching order into the sell queue
+        exchangeService.placeOrder(matchingOrder)
+
+        // Place the new order which should fail
+        val orderId = exchangeService.placeOrder(order)
+
+        val statusResponses = exchangeService.orderStatus("BTCUSDC", orderId)
+        assertEquals(1, statusResponses.size)
+        val statusResponse = statusResponses[0]
+        assertEquals(OrderStatus.FAILED, statusResponse.orderStatusType)
+        assertEquals("We did not execute this order since it would have matched with your own order on the Exchange", statusResponse.failedReason)
+    }
 }

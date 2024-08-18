@@ -67,27 +67,34 @@ class ExchangeService(
         val user = userService.get(order.user)
 
         val currencyPair = getCurrencyPair(order.pair)
+        val totalCost = order.quantity * order.price
+        val quoteBalance = user.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
+        val baseBalance = user.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO
 
-        if (order.side == OrderSide.BUY) {
-            val totalCost = order.quantity * order.price
-            val balance = user.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
-            if (balance < totalCost) {
-                order.failedReason = "Insufficient balance for user ${user.id} to place order."
-                order.status = OrderStatus.FAILED
-                order.updatedAt = Instant.now().toString()
+        try {
+            if (order.side == OrderSide.BUY) {
+                if (quoteBalance >= totalCost) {
+                    placeOrder(currencyPair, order)
+                } else {
+                    throw Exception("Insufficient balance for user ${user.id} to place order.")
+                }
             } else {
-                user.wallet.quoteBalances[currencyPair.quoteCurrency] = balance - totalCost
-                placeOrder(currencyPair, order)
+                if (baseBalance >= order.quantity) {
+                    placeOrder(currencyPair, order)
+                } else {
+                    throw Exception("Insufficient balance for user ${user.id} to place order.")
+                }
             }
-        } else {
-            val balance = user.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO
-            if (balance < order.quantity) {
-                order.failedReason = "Insufficient balance for user ${user.id} to place order."
-                order.status = OrderStatus.FAILED
-                order.updatedAt = Instant.now().toString()
+        } catch (e: Exception) {
+            order.status = OrderStatus.FAILED
+            order.failedReason = e.message
+        }
+
+        if (order.status != OrderStatus.FAILED) {
+            if (order.side == OrderSide.BUY) {
+                user.wallet.quoteBalances[currencyPair.quoteCurrency] = quoteBalance - totalCost
             } else {
-                user.wallet.baseBalances[currencyPair.baseCurrency] = balance - order.quantity
-                placeOrder(currencyPair, order)
+                user.wallet.baseBalances[currencyPair.baseCurrency] = baseBalance - order.quantity
             }
         }
 
@@ -122,6 +129,13 @@ class ExchangeService(
             if ((buyOrSellOrder.side == OrderSide.BUY && buyOrSellOrder.price >= potentialMatch.price) ||
                 (buyOrSellOrder.side == OrderSide.SELL && buyOrSellOrder.price <= potentialMatch.price)
             ) {
+                if (buyOrSellOrder.user == potentialMatch.user) {
+                    buyOrSellOrder.failedReason = "We did not execute this order since it would have matched with your own order on the Exchange"
+                    buyOrSellOrder.status = OrderStatus.FAILED
+                    buyOrSellOrder.updatedAt = Instant.now().toString()
+                    return
+                }
+
                 val tradeQuantity = minOf(buyOrSellOrder.remainingQuantity, potentialMatch.remainingQuantity)
 
                 trade(buyOrSellOrder, potentialMatch, potentialMatch.price, tradeQuantity, currencyPair)

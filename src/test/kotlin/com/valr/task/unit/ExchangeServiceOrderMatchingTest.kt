@@ -19,6 +19,7 @@ import java.util.*
 class ExchangeServiceOrderMatchingTest {
 
     private lateinit var exchangeService: ExchangeService
+
     @Mock
     private lateinit var currencyPairService: CurrencyPairService
     private lateinit var buyer: User
