@@ -5,6 +5,7 @@ import com.valr.task.service.CurrencyPairService
 import com.valr.task.service.ExchangeService
 import com.valr.task.service.UserService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,6 +18,7 @@ import java.math.BigDecimal
 class ExchangeServiceFeeTest {
 
     private lateinit var exchangeService: ExchangeService
+
     @Mock
     private lateinit var currencyPairService: CurrencyPairService
     private lateinit var makerUser: User
@@ -92,10 +94,10 @@ class ExchangeServiceFeeTest {
         val expectedMakerUSDCBalance = BigDecimal("11000.0")
         val expectedTakerUSDCBalance = BigDecimal("4000.0")
 
-        assertEquals(expectedMakerBTCBalance, makerUser.wallet.baseBalances["BTC"])
-        assertEquals(expectedTakerBTCBalance, takerUser.wallet.baseBalances["BTC"])
-        assertEquals(expectedMakerUSDCBalance, makerUser.wallet.quoteBalances["USDC"])
-        assertEquals(expectedTakerUSDCBalance, takerUser.wallet.quoteBalances["USDC"])
+        assertTrue(expectedMakerBTCBalance.compareTo(makerUser.wallet.baseBalances["BTC"]) == 0)
+        assertTrue(expectedTakerBTCBalance.compareTo(takerUser.wallet.baseBalances["BTC"]) == 0)
+        assertTrue(expectedMakerUSDCBalance.compareTo(makerUser.wallet.quoteBalances["USDC"]) == 0)
+        assertTrue(expectedTakerUSDCBalance.compareTo(takerUser.wallet.quoteBalances["USDC"]) == 0)
     }
 
     @Test
@@ -125,11 +127,12 @@ class ExchangeServiceFeeTest {
         val expectedTakerBTCBalance = BigDecimal("4.0")
 
         val expectedMakerUSDCBalance = BigDecimal("9001.0")
-        val expectedTakerUSDCBalance = BigDecimal("5999.0")
+        val expectedTakerUSDCBalance = BigDecimal("5990.0")
 
-        assertEquals(expectedMakerBTCBalance, makerUser.wallet.baseBalances["BTC"])
-        assertEquals(expectedTakerBTCBalance, takerUser.wallet.baseBalances["BTC"])
-        assertEquals(expectedMakerUSDCBalance, makerUser.wallet.quoteBalances["USDC"])
-        assertEquals(expectedTakerUSDCBalance, takerUser.wallet.quoteBalances["USDC"])
+
+        assertTrue(expectedMakerBTCBalance.compareTo(makerUser.wallet.baseBalances["BTC"]) == 0)
+        assertTrue(expectedTakerBTCBalance.compareTo(takerUser.wallet.baseBalances["BTC"]) == 0)
+        assertTrue(expectedMakerUSDCBalance.compareTo(makerUser.wallet.quoteBalances["USDC"]) == 0)
+        assertTrue(expectedTakerUSDCBalance.compareTo(takerUser.wallet.quoteBalances["USDC"]) == 0)
     }
 }

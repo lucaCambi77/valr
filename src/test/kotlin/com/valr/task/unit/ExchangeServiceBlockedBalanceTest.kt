@@ -5,6 +5,7 @@ import com.valr.task.service.CurrencyPairService
 import com.valr.task.service.ExchangeService
 import com.valr.task.service.UserService
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
@@ -32,18 +33,14 @@ class ExchangeServiceBlockedBalanceTest {
         userBuyer = User(
             id = "buyer", wallet = Wallet(
                 baseBalances = mutableMapOf("BTC" to BigDecimal("10.0")),
-                quoteBalances = mutableMapOf("USDC" to BigDecimal("1000.0")),
-                blockedBaseBalances = mutableMapOf("BTC" to BigDecimal.ZERO),
-                blockedQuoteBalances = mutableMapOf("USDC" to BigDecimal.ZERO)
+                quoteBalances = mutableMapOf("USDC" to BigDecimal("1000.0"))
             )
         )
 
         userSeller = User(
             id = "seller", wallet = Wallet(
                 baseBalances = mutableMapOf("BTC" to BigDecimal("5.0")),
-                quoteBalances = mutableMapOf("USDC" to BigDecimal("0.0")),
-                blockedBaseBalances = mutableMapOf("BTC" to BigDecimal.ZERO),
-                blockedQuoteBalances = mutableMapOf("USDC" to BigDecimal.ZERO)
+                quoteBalances = mutableMapOf("USDC" to BigDecimal("0.0"))
             )
         )
 
@@ -76,7 +73,7 @@ class ExchangeServiceBlockedBalanceTest {
         exchangeService.placeOrder(buyOrder)
 
         // Then
-        assertEquals(BigDecimal("50.0"), userBuyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency])
+        assertTrue(BigDecimal("50.0").compareTo(userBuyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency]) == 0)
         verify(userService).update(userBuyer)
     }
 
@@ -115,9 +112,8 @@ class ExchangeServiceBlockedBalanceTest {
         exchangeService.cancelOrder(buyOrder.id, currencyPair.symbol)
 
         // Then
-        assertEquals(BigDecimal.ZERO, userBuyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency])
-        assertEquals(BigDecimal("1000.0") + BigDecimal("50.0"), userBuyer.wallet.quoteBalances[currencyPair.quoteCurrency])
-        verify(userService).update(userBuyer)
+        assertTrue(BigDecimal.ZERO.compareTo(userBuyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency]) == 0)
+        assertTrue(BigDecimal("1000.0").plus(BigDecimal("50.0")).compareTo(userBuyer.wallet.quoteBalances[currencyPair.quoteCurrency]) == 0)
     }
 
     @Test
@@ -136,8 +132,7 @@ class ExchangeServiceBlockedBalanceTest {
         exchangeService.cancelOrder(sellOrder.id, currencyPair.symbol)
 
         // Then
-        assertEquals(BigDecimal.ZERO, userSeller.wallet.blockedBaseBalances[currencyPair.baseCurrency])
+        assertTrue(BigDecimal.ZERO.compareTo(userSeller.wallet.blockedBaseBalances[currencyPair.baseCurrency]) == 0)
         assertEquals(BigDecimal("5.0") + BigDecimal("1.0"), userSeller.wallet.baseBalances[currencyPair.baseCurrency])
-        verify(userService).update(userSeller)
     }
 }

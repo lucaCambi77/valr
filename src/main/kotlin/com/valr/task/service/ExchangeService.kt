@@ -68,12 +68,7 @@ class ExchangeService(
         val currencyPair = getCurrencyPair(order.pair)
 
         try {
-            if (canPlacedOrder(user, order, currencyPair)) {
-                blockFunds(user, order, currencyPair)
-                placeOrder(currencyPair, order)
-            } else {
-                throw Exception("Insufficient balance for user ${user.id} to place order.")
-            }
+            placeOrder(currencyPair, order, user)
         } catch (e: Exception) {
             order.status = OrderStatus.FAILED
             order.failedReason = e.message
@@ -88,7 +83,25 @@ class ExchangeService(
         return order.id
     }
 
-    private fun canPlacedOrder(user: User, order: Order, currencyPair: CurrencyPair): Boolean {
+    private fun placeOrder(currencyPair: CurrencyPair, order: Order, user: User) {
+
+        if (!hasBalance(user, order, currencyPair)) {
+            throw Exception("Insufficient balance for user ${user.id} to place order.")
+        }
+
+        blockFunds(user, order, currencyPair)
+
+        val buyQueue = buyOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareByDescending<Order> { it.price }) }
+        val sellQueue = sellOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareBy<Order> { it.price }) }
+
+        if (order.side == OrderSide.BUY) {
+            matchOrder(order, sellQueue, buyQueue, currencyPair)
+        } else {
+            matchOrder(order, buyQueue, sellQueue, currencyPair)
+        }
+    }
+
+    private fun hasBalance(user: User, order: Order, currencyPair: CurrencyPair): Boolean {
         val quoteBalance = user.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
         val blockedQuoteBalance = user.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
         val baseBalance = user.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO
@@ -112,17 +125,6 @@ class ExchangeService(
                 (user.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) + order.quantity
         }
         userService.update(user)
-    }
-
-    private fun placeOrder(currencyPair: CurrencyPair, order: Order) {
-        val buyQueue = buyOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareByDescending<Order> { it.price }) }
-        val sellQueue = sellOrders.getOrPut(currencyPair.symbol) { PriorityQueue(compareBy<Order> { it.price }) }
-
-        if (order.side == OrderSide.BUY) {
-            matchOrder(order, sellQueue, buyQueue, currencyPair)
-        } else {
-            matchOrder(order, buyQueue, sellQueue, currencyPair)
-        }
     }
 
     private fun matchOrder(
