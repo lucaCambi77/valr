@@ -54,25 +54,29 @@ class ExchangeServiceCancelTest {
         val order = Order(
             id = orderId,
             pair = "BTCUSDC",
-            price = BigDecimal("50000"),
-            quantity = BigDecimal("0.1"),
+            price = BigDecimal("5000"),
+            quantity = BigDecimal("1"),
             user = userId,
             side = OrderSide.BUY,
-            filledQuantity = BigDecimal("0.05")
+            filledQuantity = BigDecimal("0.5")
         )
 
-        val user = User(id = userId, wallet = Wallet(quoteBalances = mutableMapOf("USDC" to BigDecimal("100000.00"))))
+        val initialBalance = BigDecimal("10000")
+        val user = User(id = userId, wallet = Wallet(quoteBalances = mutableMapOf("USDC" to initialBalance)))
 
         `when`(userService.get(userId)).thenReturn(user)
 
         exchangeService.placeOrder(order)
+
+        reset(userService)
+        `when`(userService.get(userId)).thenReturn(user)
 
         // Act
         exchangeService.cancelOrder(orderId, "BTCUSDC")
 
         // Assert
         assertEquals(OrderStatus.CANCELLED, order.status)
-        assertEquals(BigDecimal("95000.00") + (order.remainingQuantity * order.price), user.wallet.quoteBalances["USDC"])
+        assertEquals(initialBalance + (order.remainingQuantity * order.price), user.wallet.quoteBalances["USDC"])
 
         // Verify that the userService.update() method was called with the updated user
         verify(userService).update(user)
@@ -87,24 +91,28 @@ class ExchangeServiceCancelTest {
             id = orderId,
             pair = "BTCUSDC",
             price = BigDecimal("50000"),
-            quantity = BigDecimal("0.1"),
+            quantity = BigDecimal("1.0"),
             user = userId,
             side = OrderSide.SELL,
-            filledQuantity = BigDecimal("0.05")
+            filledQuantity = BigDecimal("0.5")
         )
 
-        val user = User(id = userId, wallet = Wallet(baseBalances = mutableMapOf("BTC" to BigDecimal("0.5"))))
+        val initialBalance = BigDecimal("1.0")
+        val user = User(id = userId, wallet = Wallet(baseBalances = mutableMapOf("BTC" to initialBalance)))
 
         `when`(userService.get(userId)).thenReturn(user)
 
         exchangeService.placeOrder(order)
+
+        reset(userService)
+        `when`(userService.get(userId)).thenReturn(user)
 
         // Act
         exchangeService.cancelOrder(orderId, "BTCUSDC")
 
         // Assert
         assertEquals(OrderStatus.CANCELLED, order.status)
-        assertEquals(BigDecimal("0.4") + order.remainingQuantity, user.wallet.baseBalances["BTC"])
+        assertEquals(initialBalance + order.remainingQuantity, user.wallet.baseBalances["BTC"])
 
         // Verify that the userService.update() method was called with the updated user
         verify(userService).update(user)

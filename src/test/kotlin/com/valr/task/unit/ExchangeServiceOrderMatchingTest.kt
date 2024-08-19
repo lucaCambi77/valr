@@ -75,6 +75,7 @@ class ExchangeServiceOrderMatchingTest {
             user = seller.id,
             side = OrderSide.SELL
         )
+
         exchangeService.placeOrder(sellOrder)
 
         val buyOrder = Order(
@@ -91,7 +92,7 @@ class ExchangeServiceOrderMatchingTest {
         assertEquals(OrderStatus.FILLED, buyOrder.status)
         assertEquals(OrderStatus.FILLED, sellOrder.status)
 
-        assertEquals(BigDecimal("1.0"), buyer.wallet.baseBalances["BTC"])
+        assertEquals(BigDecimal("0.990"), buyer.wallet.baseBalances["BTC"])
         assertEquals(BigDecimal("2000.0"), seller.wallet.quoteBalances["USDC"])
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
@@ -123,7 +124,7 @@ class ExchangeServiceOrderMatchingTest {
         assertEquals(OrderStatus.PARTIALLY_FILLED, buyOrder.status)
         assertEquals(OrderStatus.FILLED, sellOrder.status)
 
-        assertEquals(BigDecimal("0.5"), buyer.wallet.baseBalances["BTC"])
+        assertEquals(BigDecimal("0.495"), buyer.wallet.baseBalances["BTC"])
         assertEquals(BigDecimal("1000.0"), seller.wallet.quoteBalances["USDC"])
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
@@ -160,7 +161,7 @@ class ExchangeServiceOrderMatchingTest {
         assertEquals(OrderStatus.FILLED, buyOrder.status)
 
         assertTrue(BigDecimal.ZERO.compareTo(seller.wallet.baseBalances["BTC"]) == 0)
-        assertEquals(BigDecimal("2000.0"), seller.wallet.quoteBalances["USDC"])
+        assertEquals(BigDecimal("1980.0"), seller.wallet.quoteBalances["USDC"])
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
         assertTrue(orderBook.asks.isEmpty())
@@ -191,8 +192,8 @@ class ExchangeServiceOrderMatchingTest {
         assertEquals(OrderStatus.PARTIALLY_FILLED, sellOrder.status)
         assertEquals(OrderStatus.FILLED, buyOrder.status)
 
-        assertEquals(BigDecimal("0.0"), seller.wallet.baseBalances["BTC"])
-        assertEquals(BigDecimal("1000.0"), seller.wallet.quoteBalances["USDC"])
+        assertEquals(BigDecimal("0.5"), seller.wallet.baseBalances["BTC"])
+        assertEquals(BigDecimal("990.0"), seller.wallet.quoteBalances["USDC"])
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
         assertEquals(1, orderBook.asks.size)

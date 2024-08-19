@@ -87,7 +87,7 @@ class ExchangeServiceFeeTest {
         exchangeService.placeOrder(takerOrder)
 
         val expectedMakerBTCBalance = BigDecimal("9.0010")
-        val expectedTakerBTCBalance = BigDecimal("5.9990")
+        val expectedTakerBTCBalance = BigDecimal("5.990")
 
         val expectedMakerUSDCBalance = BigDecimal("11000.0")
         val expectedTakerUSDCBalance = BigDecimal("4000.0")
@@ -124,7 +124,7 @@ class ExchangeServiceFeeTest {
         val expectedMakerBTCBalance = BigDecimal("11.0")
         val expectedTakerBTCBalance = BigDecimal("4.0")
 
-        val expectedMakerUSDCBalance = BigDecimal("8999.0")
+        val expectedMakerUSDCBalance = BigDecimal("9001.0")
         val expectedTakerUSDCBalance = BigDecimal("5999.0")
 
         assertEquals(expectedMakerBTCBalance, makerUser.wallet.baseBalances["BTC"])

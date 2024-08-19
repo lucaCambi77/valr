@@ -12,5 +12,7 @@ data class User(
 
 data class Wallet(
     val baseBalances: MutableMap<String, BigDecimal> = mutableMapOf(),
-    val quoteBalances: MutableMap<String, BigDecimal> = mutableMapOf()
+    val quoteBalances: MutableMap<String, BigDecimal> = mutableMapOf(),
+    val blockedBaseBalances: MutableMap<String, BigDecimal> = mutableMapOf(),
+    val blockedQuoteBalances: MutableMap<String, BigDecimal> = mutableMapOf()
 )
