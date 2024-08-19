@@ -4,7 +4,6 @@ import com.valr.task.domain.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong

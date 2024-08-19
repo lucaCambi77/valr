@@ -4,7 +4,6 @@ import com.valr.task.domain.*
 import com.valr.task.service.CurrencyPairService
 import com.valr.task.service.ExchangeService
 import com.valr.task.service.UserService
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
