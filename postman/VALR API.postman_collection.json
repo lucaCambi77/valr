@@ -1,0 +1,246 @@
+{
+	"info": {
+		"_postman_id": "e05433be-de74-4d16-b545-89b4807eac64",
+		"name": "VALR API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10831881"
+	},
+	"item": [
+		{
+			"name": "Account API",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/account/create",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"account",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Wallet",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"baseBalances\": {\n        \"USD\": 1000.0\n    },\n    \"quoteBalances\": {\n        \"BTC\": 0.5\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/account/wallet",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"account",
+								"wallet"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Exchange API",
+			"item": [
+				{
+					"name": "Get Order Book",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/{{currencyPair}}/orderbook",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{currencyPair}}",
+								"orderbook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trade History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/{{currencyPair}}/tradehistory?limit={{limit}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{currencyPair}}",
+								"tradehistory"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "{{limit}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Place Limit Order",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"12345\",\n    \"pair\": \"USDCBTC\",\n    \"price\": \"40000\",\n    \"quantity\": \"0.1\",\n    \"side\": \"BUY\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/limit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"limit"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orders/{{currencyPair}}/status/12345",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"{{currencyPair}}",
+								"status",
+								"12345"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"orderId\": \"12345\",\n    \"pair\": \"USDCBTC\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/order",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								"order"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "currencyPair",
+			"value": "USDCBTC"
+		},
+		{
+			"key": "limit",
+			"value": "10"
+		},
+		{
+			"key": "username",
+			"value": "johndoe@example.com"
+		},
+		{
+			"key": "password",
+			"value": "password123"
+		}
+	]
+}

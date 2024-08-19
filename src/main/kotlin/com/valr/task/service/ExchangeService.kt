@@ -273,7 +273,7 @@ class ExchangeService(
                 orderType = order.orderType,
                 failedReason = order.failedReason,
                 orderUpdatedAt = order.updatedAt.toString(),
-                orderCreatedAt = order.createdAt.toString()
+                orderCreatedAt = order.createdAt
             )
         }
     }

@@ -32,6 +32,14 @@ The API should have at-least the following endpoints:
 java -jar build/libs/task.jar
 ```
 
+or
+
+```bash
+./gradlew bootRun
+```
+
+The application will start listening on port 8080.
+
 ## Solution :
 
 - **The application provides endpoints for creating users and performing basic operations related to asset exchanges and limit order management. For simplicity, the exchange service currently supports only the `USDCBTC` currency pair.**
@@ -50,6 +58,47 @@ java -jar build/libs/task.jar
     - **Transaction Fee**: A percentage-based fee is applied to each trade.
     - **Maker Reward**: Users who provide liquidity by placing limit orders that are not immediately matched receive a reward.
 
-## Endpoint with Postman :
+## API Endpoints
 
-Account and Buy/Sell endpoints are available as Postman collections [here](/postman/). Basic authentication is required for all endpoints except for user creation.
+### Account Endpoints
+
+- **`POST /account/create`**
+    - **Description**: Creates a new user account. The request body must include the user's name, email, and password. The password is securely hashed before being stored.
+    - **Response**: Returns the unique user ID of the newly created account.
+    - **HTTP Status**: `201 Created`
+
+- **`PATCH /account/wallet`**
+    - **Description**: Updates the user's wallet with new base and quote balances. The request body should include the balances to be updated.
+    - **Response**: Returns the updated user details, including the wallet balances.
+    - **HTTP Status**: `200 OK`
+
+### Exchange Endpoints
+
+- **`GET /{currencyPair}/orderbook`**
+    - **Description**: Retrieves the current order book for a specified currency pair, showing both buy and sell orders.
+    - **Response**: Returns a summary of the order book, including the sequence number and the last change timestamp.
+    - **HTTP Status**: `200 OK`
+
+- **`GET /{currencyPair}/tradehistory`**
+    - **Description**: Fetches the trade history for a specified currency pair. You can specify the number of recent trades to retrieve using the `limit` parameter.
+    - **Response**: Returns a list of recent trades for the specified currency pair.
+    - **HTTP Status**: `200 OK`
+
+- **`POST /orders/limit`**
+    - **Description**: Places a limit order for buying or selling a specified currency pair. The order includes details such as price, quantity, and order side (buy/sell).
+    - **Response**: Returns the ID of the placed order.
+    - **HTTP Status**: `202 Accepted`
+
+- **`GET /orders/{currencyPair}/status/{orderId}`**
+    - **Description**: Retrieves the status of a specific order for a given currency pair. This endpoint allows monitoring the progress and fulfillment of an order.
+    - **Response**: Returns the current status of the specified order.
+    - **HTTP Status**: `200 OK`
+
+- **`DELETE /orders/order`**
+    - **Description**: Cancels an existing order for a specified currency pair. The request body should include the order ID and currency pair.
+    - **Response**: Returns an empty response indicating the order has been successfully canceled.
+    - **HTTP Status**: `200 OK`
+
+## Endpoints with Postman :
+
+Account and Buy/Sell endpoints are available as [Postman](/postman) collections. Basic authentication is required for all endpoints except for user creation.
