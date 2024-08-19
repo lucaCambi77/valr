@@ -325,8 +325,4 @@ class ExchangeService(
 
         userService.update(user)
     }
-
-    fun applyDecimalScale(decimalScale: Int, value: BigDecimal): BigDecimal {
-        return value.setScale(decimalScale, RoundingMode.DOWN)
-    }
 }

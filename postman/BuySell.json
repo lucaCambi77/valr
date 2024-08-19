@@ -1,0 +1,224 @@
+{
+	"info": {
+		"_postman_id": "54e38730-4028-41f4-830b-02e8ab92d141",
+		"name": "Bus/Sell API",
+		"description": "Postman Collection for ExchangeController API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10831881"
+	},
+	"item": [
+		{
+			"name": "Get Order Book",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "your_username",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "your_password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/{{currencyPair}}/orderbook",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"{{currencyPair}}",
+						"orderbook"
+					],
+					"variable": [
+						{
+							"key": "currencyPair",
+							"value": "BTCZAR"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Trade History",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "your_username",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "your_password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/{{currencyPair}}/tradehistory?limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"{{currencyPair}}",
+						"tradehistory"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "10"
+						}
+					],
+					"variable": [
+						{
+							"key": "currencyPair",
+							"value": "BTCZAR"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Limit Order",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "your_username",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "your_password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"price\": \"50000\",\n    \"quantity\": \"0.1\",\n    \"side\": \"BUY\",\n    \"pair\": \"BTCZAR\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/limit",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						"limit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Order Status",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "your_username",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "your_password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/orders/{{currencyPair}}/status/{{orderId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						"{{currencyPair}}",
+						"status",
+						"{{orderId}}"
+					],
+					"variable": [
+						{
+							"key": "currencyPair",
+							"value": "BTCZAR"
+						},
+						{
+							"key": "orderId",
+							"value": "123e4567-e89b-12d3-a456-426614174000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Order",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "your_username",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "your_password",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"orderId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"pair\": \"BTCZAR\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						"order"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
