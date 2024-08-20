@@ -1,35 +1,53 @@
 {
 	"info": {
-		"_postman_id": "e05433be-de74-4d16-b545-89b4807eac64",
+		"_postman_id": "812a25f2-7778-4379-b95f-2f28f47ee9ea",
 		"name": "VALR API",
+		"description": "Postman collection for Account and Exchange API with /api/v1 prefix and basic authentication.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "10831881"
 	},
 	"item": [
 		{
-			"name": "Account API",
+			"name": "Account",
 			"item": [
 				{
 					"name": "Create User",
 					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"johndoe@example.com\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/account/create",
+							"raw": "http://{{host}}/api/v1/account/create",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"account",
 								"create"
 							]
@@ -56,23 +74,25 @@
 							]
 						},
 						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"baseBalances\": {\n        \"USD\": 1000.0\n    },\n    \"quoteBalances\": {\n        \"BTC\": 0.5\n    }\n}"
+							"raw": "{\n  \"baseBalances\": {\n    \"USD\": 1000.00\n  },\n  \"quoteBalances\": {\n    \"BTC\": 0.5\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/account/wallet",
+							"raw": "http://{{host}}/api/v1/account/wallet",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"account",
 								"wallet"
 							]
@@ -83,44 +103,92 @@
 			]
 		},
 		{
-			"name": "Exchange API",
+			"name": "Exchange",
 			"item": [
 				{
-					"name": "Get Order Book",
+					"name": "Order Book",
 					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/{{currencyPair}}/orderbook",
+							"raw": "http://{{host}}/api/v1/{currencyPair}/orderbook",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
-								"{{currencyPair}}",
+								"api",
+								"v1",
+								"{currencyPair}",
 								"orderbook"
+							],
+							"variable": [
+								{
+									"key": "currencyPair",
+									"value": "USDCBTC"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Get Trade History",
+					"name": "Trade History",
 					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/{{currencyPair}}/tradehistory?limit={{limit}}",
+							"raw": "http://{{host}}/api/v1/{currencyPair}/tradehistory?limit=10",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
-								"{{currencyPair}}",
+								"api",
+								"v1",
+								"{currencyPair}",
 								"tradehistory"
 							],
 							"query": [
 								{
 									"key": "limit",
-									"value": "{{limit}}"
+									"value": "10"
+								}
+							],
+							"variable": [
+								{
+									"key": "currencyPair",
+									"value": "USDCBTC"
 								}
 							]
 						}
@@ -146,23 +214,25 @@
 							]
 						},
 						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"12345\",\n    \"pair\": \"USDCBTC\",\n    \"price\": \"40000\",\n    \"quantity\": \"0.1\",\n    \"side\": \"BUY\"\n}"
+							"raw": "{\n  \"price\": \"30000.00\",\n  \"quantity\": \"1.5\",\n  \"side\": \"BUY\",\n  \"pair\": \"USDCBTC\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/orders/limit",
+							"raw": "http://{{host}}/api/v1/orders/limit",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"orders",
 								"limit"
 							]
@@ -171,20 +241,48 @@
 					"response": []
 				},
 				{
-					"name": "Get Order Status",
+					"name": "Order Status",
 					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/orders/{{currencyPair}}/status/12345",
+							"raw": "http://{{host}}/api/v1/orders/{currencyPair}/status/{orderId}",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"orders",
-								"{{currencyPair}}",
+								"{currencyPair}",
 								"status",
-								"12345"
+								"{orderId}"
+							],
+							"variable": [
+								{
+									"key": "currencyPair",
+									"value": "USDCBTC"
+								},
+								{
+									"key": "orderId",
+									"value": "12345"
+								}
 							]
 						}
 					},
@@ -193,24 +291,41 @@
 				{
 					"name": "Cancel Order",
 					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "DELETE",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"orderId\": \"12345\",\n    \"pair\": \"USDCBTC\"\n}"
+							"raw": "{\n  \"orderId\": \"12345\",\n  \"pair\": \"USDCBTC\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/orders/order",
+							"raw": "http://{{host}}/api/v1/orders/order",
+							"protocol": "http",
 							"host": [
-								"{{base_url}}"
+								"{{host}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"orders",
 								"order"
 							]
@@ -223,24 +338,16 @@
 	],
 	"variable": [
 		{
-			"key": "base_url",
-			"value": "http://localhost:8080"
-		},
-		{
-			"key": "currencyPair",
-			"value": "USDCBTC"
-		},
-		{
-			"key": "limit",
-			"value": "10"
+			"key": "host",
+			"value": "localhost:8080"
 		},
 		{
 			"key": "username",
-			"value": "johndoe@example.com"
+			"value": "your-username"
 		},
 		{
 			"key": "password",
-			"value": "password123"
+			"value": "your-password"
 		}
 	]
 }

@@ -101,4 +101,4 @@ The application will start listening on port 8080.
 
 ## Endpoints with Postman :
 
-Account and Buy/Sell endpoints are available as [Postman](/postman) collections. Basic authentication is required for all endpoints except for user creation.
+Account and Exchange endpoints are available as [Postman](/postman) collections. Basic authentication is required for all endpoints except for user creation.
