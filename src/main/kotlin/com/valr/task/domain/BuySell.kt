@@ -66,6 +66,7 @@ data class OrderSummary(
 
 data class OrderBookResponse(
     val asks: List<OrderSummary>,
+    val bids: List<OrderSummary>,
     val lastChange: String,
     val sequenceNumber: Long
 )

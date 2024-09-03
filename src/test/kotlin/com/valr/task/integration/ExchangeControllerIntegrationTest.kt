@@ -157,9 +157,11 @@ class ExchangeControllerIntegrationTest {
         val orderBookJson = """
                 {
                     "asks": [
-                        {"side": "BUY", "quantity": "0.5", "price": "20000.00", "currencyPair": "BTCUSDC", "orderCount": 1},
                         {"side": "SELL", "quantity": "1.0", "price": "19900.00", "currencyPair": "BTCUSDC", "orderCount": 2},
-                        {"side": "SELL", "quantity": "0.2", "price": "21000.00", "currencyPair": "BTCUSDC", "orderCount": 3},
+                        {"side": "SELL", "quantity": "0.2", "price": "21000.00", "currencyPair": "BTCUSDC", "orderCount": 3}
+                    ],
+                    "bids": [
+                        {"side": "BUY", "quantity": "0.5", "price": "20000.00", "currencyPair": "BTCUSDC", "orderCount": 1},
                         {"side": "BUY", "quantity": "0.3", "price": "22000.00", "currencyPair": "BTCUSDC", "orderCount": 4}
                     ],
                     "lastChange": "2024-08-16T12:00:00Z",
@@ -170,13 +172,6 @@ class ExchangeControllerIntegrationTest {
         `when`(exchangeService.orderBook("BTCUSDC")).thenReturn(
             OrderBookResponse(
                 asks = listOf(
-                    OrderSummary(
-                        side = OrderSide.BUY,
-                        quantity = "0.5",
-                        price = "20000.00",
-                        currencyPair = "BTCUSDC",
-                        orderCount = 1
-                    ),
                     OrderSummary(
                         side = OrderSide.SELL,
                         quantity = "1.0",
@@ -190,6 +185,15 @@ class ExchangeControllerIntegrationTest {
                         price = "21000.00",
                         currencyPair = "BTCUSDC",
                         orderCount = 3
+                    )
+                ),
+                bids = listOf(
+                    OrderSummary(
+                        side = OrderSide.BUY,
+                        quantity = "0.5",
+                        price = "20000.00",
+                        currencyPair = "BTCUSDC",
+                        orderCount = 1
                     ),
                     OrderSummary(
                         side = OrderSide.BUY,

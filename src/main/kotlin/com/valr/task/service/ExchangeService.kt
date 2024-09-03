@@ -29,10 +29,9 @@ class ExchangeService(
         val asks = aggregateOrders(sellOrders[currencyPair.symbol] ?: PriorityQueue(), OrderSide.SELL, currencyPair)
         val bids = aggregateOrders(buyOrders[currencyPair.symbol] ?: PriorityQueue(), OrderSide.BUY, currencyPair)
 
-        val allOrders = asks + bids
-
         return OrderBookResponse(
-            asks = allOrders,
+            asks = asks,
+            bids = bids,
             lastChange = Instant.now().toString(),
             sequenceNumber = orderBookSequence.get()
         )

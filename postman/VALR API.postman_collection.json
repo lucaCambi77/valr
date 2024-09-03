@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "af6ce43e-16d0-4b0c-a17c-1a8492ca161a",
+		"_postman_id": "0a05fdcb-5187-4ded-98f2-a3332fd82f75",
 		"name": "VALR API",
 		"description": "Collection for VALR Exchange and Account APIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -31,19 +31,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/:currencyPair/orderbook",
+							"raw": "{{host}}/api/v1/:currencyPair/orderbook",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								":currencyPair",
 								"orderbook"
 							],
 							"variable": [
 								{
 									"key": "currencyPair",
-									"value": "BTCUSDC"
+									"value": ""
 								}
 							]
 						}
@@ -71,12 +72,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/:currencyPair/tradehistory?limit=10",
+							"raw": "{{host}}/api/v1/:currencyPair/tradehistory?limit=10",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								":currencyPair",
 								"tradehistory"
 							],
@@ -89,7 +91,7 @@
 							"variable": [
 								{
 									"key": "currencyPair",
-									"value": "BTCUSDC"
+									"value": ""
 								}
 							]
 						}
@@ -127,12 +129,13 @@
 							"raw": "{\"price\": \"30000.00\", \"quantity\": \"0.5\", \"side\": \"BUY\", \"pair\": \"BTCUSDC\"}"
 						},
 						"url": {
-							"raw": "{{host}}/api/orders/limit",
+							"raw": "{{host}}/api/v1/orders/limit",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"orders",
 								"limit"
 							]
@@ -161,12 +164,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/orders/:currencyPair/status/:orderId",
+							"raw": "{{host}}/api/v1/orders/:currencyPair/status/:orderId",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"orders",
 								":currencyPair",
 								"status",
@@ -217,12 +221,13 @@
 							"raw": "{\"orderId\": \"12345678\", \"pair\": \"BTCUSDC\"}"
 						},
 						"url": {
-							"raw": "{{host}}/api/orders/order",
+							"raw": "{{host}}/api/v1/orders/order",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"orders",
 								"order"
 							]
@@ -251,12 +256,13 @@
 							"raw": "{\"name\": \"John Doe\", \"email\": \"johndoe@example.com\", \"password\": \"password123\"}"
 						},
 						"url": {
-							"raw": "{{host}}/api/account/create",
+							"raw": "{{host}}/api/v1/account/create",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"account",
 								"create"
 							]
@@ -295,12 +301,13 @@
 							"raw": "{\"baseBalances\": {\"BTC\": \"1.5\"}, \"quoteBalances\": {\"USDC\": \"30000\"}}"
 						},
 						"url": {
-							"raw": "{{host}}/api/account/wallet",
+							"raw": "{{host}}/api/v1/account/wallet",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"account",
 								"wallet"
 							]
@@ -309,6 +316,28 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
 		}
 	],
 	"variable": [

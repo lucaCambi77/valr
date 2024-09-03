@@ -128,9 +128,10 @@ class ExchangeServiceOrderMatchingTest {
         assertTrue(BigDecimal("1000.0").compareTo(seller.wallet.quoteBalances["USDC"]) == 0)
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
-        assertEquals(1, orderBook.asks.size)
+        assertEquals(0, orderBook.asks.size)
+        assertEquals(1, orderBook.bids.size)
 
-        val remainingBuyOrder = orderBook.asks[0]
+        val remainingBuyOrder = orderBook.bids[0]
         assertTrue(BigDecimal("2000.0").compareTo(BigDecimal(remainingBuyOrder.price)) == 0)
         assertTrue(BigDecimal("0.5").compareTo(BigDecimal(remainingBuyOrder.quantity)) == 0)
     }

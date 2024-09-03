@@ -75,9 +75,10 @@ class ExchangeServiceOrderBookTest {
         exchangeService.placeOrder(buyOrder)
         val orderBook = exchangeService.orderBook("BTCUSDC")
 
-        assertEquals(1, orderBook.asks.size)
+        assertEquals(0, orderBook.asks.size)
+        assertEquals(1, orderBook.bids.size)
 
-        val bidOrder = orderBook.asks[0]
+        val bidOrder = orderBook.bids[0]
         assertEquals(buyOrder.price.toString(), bidOrder.price)
         assertEquals(buyOrder.quantity.toString(), bidOrder.quantity)
     }
@@ -127,15 +128,16 @@ class ExchangeServiceOrderBookTest {
         exchangeService.placeOrder(sellOrder)
         val orderBook = exchangeService.orderBook("BTCUSDC")
 
-        assertEquals(2, orderBook.asks.size)
+        assertEquals(1, orderBook.asks.size)
+        assertEquals(1, orderBook.bids.size)
 
-        val bidOrder = orderBook.asks[0]
-        val askOrder = orderBook.asks[1]
+        val bidOrder = orderBook.bids[0]
+        val askOrder = orderBook.asks[0]
 
-        assertEquals(sellOrder.price.toString(), bidOrder.price)
-        assertEquals(sellOrder.quantity.toString(), bidOrder.quantity)
-        assertEquals(buyOrder.price.toString(), askOrder.price)
-        assertEquals(buyOrder.quantity.toString(), askOrder.quantity)
+        assertEquals(sellOrder.price.toString(), askOrder.price)
+        assertEquals(sellOrder.quantity.toString(), askOrder.quantity)
+        assertEquals(buyOrder.price.toString(), bidOrder.price)
+        assertEquals(buyOrder.quantity.toString(), bidOrder.quantity)
     }
 
     @Test
@@ -162,9 +164,10 @@ class ExchangeServiceOrderBookTest {
         exchangeService.placeOrder(buyOrder2)
         val orderBook = exchangeService.orderBook("BTCUSDC")
 
-        assertEquals(1, orderBook.asks.size)
+        assertEquals(0, orderBook.asks.size)
+        assertEquals(1, orderBook.bids.size)
 
-        val aggregatedBidOrder = orderBook.asks[0]
+        val aggregatedBidOrder = orderBook.bids[0]
         assertEquals(buyOrder1.price.toString(), aggregatedBidOrder.price)
         assertEquals("0.3", aggregatedBidOrder.quantity)
         assertEquals(2, aggregatedBidOrder.orderCount)
