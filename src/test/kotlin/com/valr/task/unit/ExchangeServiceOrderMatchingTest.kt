@@ -126,6 +126,8 @@ class ExchangeServiceOrderMatchingTest {
 
         assertTrue(BigDecimal("0.495").compareTo(buyer.wallet.baseBalances["BTC"]) == 0)
         assertTrue(BigDecimal("1000.0").compareTo(seller.wallet.quoteBalances["USDC"]) == 0)
+        assertTrue(BigDecimal("1000.0").compareTo(buyer.wallet.blockedQuoteBalances["USDC"]) == 0) // still half is blocked as the order is partially filled
+        assertTrue(BigDecimal("0.0").compareTo(seller.wallet.blockedBaseBalances["BTC"]) == 0)
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
         assertEquals(0, orderBook.asks.size)
@@ -195,6 +197,8 @@ class ExchangeServiceOrderMatchingTest {
 
         assertTrue(BigDecimal("0.5").compareTo(seller.wallet.baseBalances["BTC"]) == 0)
         assertTrue(BigDecimal("990.0").compareTo(seller.wallet.quoteBalances["USDC"]) == 0)
+        assertTrue(BigDecimal("0.5").compareTo(seller.wallet.blockedBaseBalances["BTC"]) == 0) // still half is blocked as the order is partially filled
+        assertTrue(BigDecimal("0.0").compareTo(buyer.wallet.blockedQuoteBalances["USDC"]) == 0)
 
         val orderBook = exchangeService.orderBook("BTCUSDC")
         assertEquals(1, orderBook.asks.size)

@@ -211,6 +211,10 @@ class ExchangeService(
             // Adjust the buyer's blocked quote balance and actual balance
             buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] =
                 (buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) - totalCost
+
+            // Adjust the buyer's blocked quote balance and actual balance
+            seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] =
+                (seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
         } else {
             // Buyer is the Maker
             makerRewardAmount = tradeQuantity * tradePrice * makerReward
@@ -232,9 +236,13 @@ class ExchangeService(
             seller.wallet.baseBalances[currencyPair.baseCurrency] =
                 (seller.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
 
-            // Adjust the seller's blocked base balance and actual balance
+            // Adjust the seller's blocked base balance
             seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] =
                 (seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
+
+            // Adjust the buyer's blocked quote balance
+            buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] =
+                (buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) - (tradeQuantity * tradePrice)
         }
 
         userService.update(buyer)
