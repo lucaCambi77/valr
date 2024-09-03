@@ -68,7 +68,6 @@ class ExchangeControllerIntegrationTest {
 
         val orderRequestJson = """
             {
-                "id": "$id",
                 "price": "20000.00",
                 "quantity": "0.5",
                 "side": "BUY",

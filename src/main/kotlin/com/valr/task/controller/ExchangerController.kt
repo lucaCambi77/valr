@@ -32,7 +32,7 @@ class ExchangeController(val exchangeService: ExchangeService) {
     ): ResponseEntity<String> {
 
         val order = Order(
-            id = orderRequest.id,
+            id = UUID.randomUUID().toString(),
             user = authentication.name,
             pair = orderRequest.pair,
             price = BigDecimal(orderRequest.price),
@@ -44,7 +44,6 @@ class ExchangeController(val exchangeService: ExchangeService) {
     }
 
     data class OrderRequest(
-        val id: String = UUID.randomUUID().toString(),
         val price: String,
         var quantity: String,
         val side: OrderSide,

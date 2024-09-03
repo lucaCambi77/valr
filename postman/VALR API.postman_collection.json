@@ -1,109 +1,14 @@
 {
 	"info": {
-		"_postman_id": "812a25f2-7778-4379-b95f-2f28f47ee9ea",
+		"_postman_id": "af6ce43e-16d0-4b0c-a17c-1a8492ca161a",
 		"name": "VALR API",
-		"description": "Postman collection for Account and Exchange API with /api/v1 prefix and basic authentication.",
+		"description": "Collection for VALR Exchange and Account APIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "10831881"
 	},
 	"item": [
 		{
-			"name": "Account",
-			"item": [
-				{
-					"name": "Create User",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "{{username}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{password}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{host}}/api/v1/account/create",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"account",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Wallet",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "{{username}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{password}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"baseBalances\": {\n    \"USD\": 1000.00\n  },\n  \"quoteBalances\": {\n    \"BTC\": 0.5\n  }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://{{host}}/api/v1/account/wallet",
-							"protocol": "http",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"account",
-								"wallet"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Exchange",
+			"name": "Exchange API",
 			"item": [
 				{
 					"name": "Order Book",
@@ -126,21 +31,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}/api/v1/{currencyPair}/orderbook",
-							"protocol": "http",
+							"raw": "{{host}}/api/:currencyPair/orderbook",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"v1",
-								"{currencyPair}",
+								":currencyPair",
 								"orderbook"
 							],
 							"variable": [
 								{
 									"key": "currencyPair",
-									"value": "USDCBTC"
+									"value": "BTCUSDC"
 								}
 							]
 						}
@@ -168,15 +71,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}/api/v1/{currencyPair}/tradehistory?limit=10",
-							"protocol": "http",
+							"raw": "{{host}}/api/:currencyPair/tradehistory?limit=10",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"v1",
-								"{currencyPair}",
+								":currencyPair",
 								"tradehistory"
 							],
 							"query": [
@@ -188,7 +89,7 @@
 							"variable": [
 								{
 									"key": "currencyPair",
-									"value": "USDCBTC"
+									"value": "BTCUSDC"
 								}
 							]
 						}
@@ -214,25 +115,24 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"price\": \"30000.00\",\n  \"quantity\": \"1.5\",\n  \"side\": \"BUY\",\n  \"pair\": \"USDCBTC\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\"price\": \"30000.00\", \"quantity\": \"0.5\", \"side\": \"BUY\", \"pair\": \"BTCUSDC\"}"
 						},
 						"url": {
-							"raw": "http://{{host}}/api/v1/orders/limit",
-							"protocol": "http",
+							"raw": "{{host}}/api/orders/limit",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"v1",
 								"orders",
 								"limit"
 							]
@@ -261,27 +161,25 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}/api/v1/orders/{currencyPair}/status/{orderId}",
-							"protocol": "http",
+							"raw": "{{host}}/api/orders/:currencyPair/status/:orderId",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"v1",
 								"orders",
-								"{currencyPair}",
+								":currencyPair",
 								"status",
-								"{orderId}"
+								":orderId"
 							],
 							"variable": [
 								{
 									"key": "currencyPair",
-									"value": "USDCBTC"
+									"value": "BTCUSDC"
 								},
 								{
 									"key": "orderId",
-									"value": "12345"
+									"value": "12345678"
 								}
 							]
 						}
@@ -307,27 +205,104 @@
 							]
 						},
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"orderId\": \"12345\",\n  \"pair\": \"USDCBTC\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\"orderId\": \"12345678\", \"pair\": \"BTCUSDC\"}"
 						},
 						"url": {
-							"raw": "http://{{host}}/api/v1/orders/order",
-							"protocol": "http",
+							"raw": "{{host}}/api/orders/order",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"v1",
 								"orders",
 								"order"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Account API",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"John Doe\", \"email\": \"johndoe@example.com\", \"password\": \"password123\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/account/create",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"account",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Wallet",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"baseBalances\": {\"BTC\": \"1.5\"}, \"quoteBalances\": {\"USDC\": \"30000\"}}"
+						},
+						"url": {
+							"raw": "{{host}}/api/account/wallet",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"account",
+								"wallet"
 							]
 						}
 					},
@@ -339,7 +314,7 @@
 	"variable": [
 		{
 			"key": "host",
-			"value": "localhost:8080"
+			"value": "http://localhost:8080"
 		},
 		{
 			"key": "username",
