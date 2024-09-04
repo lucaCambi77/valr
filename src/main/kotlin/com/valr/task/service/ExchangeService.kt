@@ -116,11 +116,9 @@ class ExchangeService(
     private fun blockFunds(user: User, order: Order, currencyPair: CurrencyPair) {
         if (order.side == OrderSide.BUY) {
             val totalCost = order.quantity * order.price
-            user.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] =
-                (user.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) + totalCost
+            user.wallet.updateBlockedQuoteBalance(currencyPair.quoteCurrency, totalCost)
         } else {
-            user.wallet.blockedBaseBalances[currencyPair.baseCurrency] =
-                (user.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) + order.quantity
+            user.wallet.updateBlockedBaseBalance(currencyPair.baseCurrency, order.quantity)
         }
         userService.update(user)
     }
@@ -192,57 +190,45 @@ class ExchangeService(
 
             // Seller is the Maker
             makerRewardAmount = tradeQuantity * makerReward
-            seller.wallet.baseBalances[currencyPair.baseCurrency] =
-                (seller.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) + makerRewardAmount - tradeQuantity
+            seller.wallet.updateBaseBalance(currencyPair.baseCurrency, makerRewardAmount - tradeQuantity)
 
             // Seller increase the quote currency
-            seller.wallet.quoteBalances[currencyPair.quoteCurrency] =
-                (seller.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) + totalCost
+            seller.wallet.updateQuoteBalance(currencyPair.quoteCurrency, totalCost)
 
             // Buyer is the Taker
             takerFeeAmount = tradeQuantity * transactionFee
-            buyer.wallet.baseBalances[currencyPair.baseCurrency] =
-                (buyer.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) + tradeQuantity - takerFeeAmount
+            buyer.wallet.updateBaseBalance(currencyPair.baseCurrency, tradeQuantity - takerFeeAmount)
 
             // Buyer decrease the quote currency
-            buyer.wallet.quoteBalances[currencyPair.quoteCurrency] =
-                (buyer.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) - totalCost
+            buyer.wallet.updateQuoteBalance(currencyPair.quoteCurrency, -totalCost)
 
-            // Adjust the buyer's blocked quote balance and actual balance
-            buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] =
-                (buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) - totalCost
+            // Adjust the buyer's blocked quote balance
+            buyer.wallet.updateBlockedQuoteBalance(currencyPair.quoteCurrency, -totalCost)
 
-            // Adjust the buyer's blocked quote balance and actual balance
-            seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] =
-                (seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
+            // Adjust the buyer's blocked base balance
+            seller.wallet.updateBlockedBaseBalance(currencyPair.baseCurrency, -tradeQuantity)
         } else {
             // Buyer is the Maker
             makerRewardAmount = tradeQuantity * tradePrice * makerReward
-            buyer.wallet.quoteBalances[currencyPair.quoteCurrency] =
-                (buyer.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) + makerRewardAmount - (tradeQuantity * tradePrice)
+            buyer.wallet.updateQuoteBalance(currencyPair.quoteCurrency, makerRewardAmount - (tradeQuantity * tradePrice))
 
             // Buyer increase the base currency
-            buyer.wallet.baseBalances[currencyPair.baseCurrency] =
-                (buyer.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) + tradeQuantity
+            buyer.wallet.updateBaseBalance(currencyPair.baseCurrency, tradeQuantity)
 
             // Seller is the Taker
             takerFeeAmount = tradeQuantity * tradePrice * transactionFee
             val netQuote = tradeQuantity * tradePrice - takerFeeAmount
 
-            seller.wallet.quoteBalances[currencyPair.quoteCurrency] =
-                (seller.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) + netQuote
+            seller.wallet.updateQuoteBalance(currencyPair.quoteCurrency, netQuote)
 
             // Seller decrease the base currency
-            seller.wallet.baseBalances[currencyPair.baseCurrency] =
-                (seller.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
+            seller.wallet.updateBaseBalance(currencyPair.baseCurrency, -tradeQuantity)
 
             // Adjust the seller's blocked base balance
-            seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] =
-                (seller.wallet.blockedBaseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO) - tradeQuantity
+            seller.wallet.updateBlockedBaseBalance(currencyPair.baseCurrency, -tradeQuantity)
 
             // Adjust the buyer's blocked quote balance
-            buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] =
-                (buyer.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO) - (tradeQuantity * tradePrice)
+            buyer.wallet.updateBlockedQuoteBalance(currencyPair.quoteCurrency, -(tradeQuantity * tradePrice))
         }
 
         userService.update(buyer)
@@ -301,11 +287,9 @@ class ExchangeService(
         releaseBlockedFunds(user, order, currencyPair)
 
         if (order.side == OrderSide.BUY) {
-            val balance = user.wallet.quoteBalances[currencyPair.quoteCurrency] ?: BigDecimal.ZERO
-            user.wallet.quoteBalances[currencyPair.quoteCurrency] = balance + (order.remainingQuantity * order.price)
+            user.wallet.updateQuoteBalance(currencyPair.quoteCurrency, order.remainingQuantity * order.price)
         } else {
-            val balance = user.wallet.baseBalances[currencyPair.baseCurrency] ?: BigDecimal.ZERO
-            user.wallet.baseBalances[currencyPair.baseCurrency] = balance + order.remainingQuantity
+            user.wallet.updateBaseBalance(currencyPair.baseCurrency, order.remainingQuantity)
         }
 
         orderBookSequence.incrementAndGet()
@@ -322,11 +306,9 @@ class ExchangeService(
     private fun releaseBlockedFunds(user: User, order: Order, currencyPair: CurrencyPair) {
         if (order.side == OrderSide.BUY) {
             val blockedAmount = order.quantity * order.price
-            val currentBlockedQuoteBalance = user.wallet.blockedQuoteBalances.getOrDefault(currencyPair.quoteCurrency, BigDecimal.ZERO)
-            user.wallet.blockedQuoteBalances[currencyPair.quoteCurrency] = currentBlockedQuoteBalance - blockedAmount
+            user.wallet.updateBlockedQuoteBalance(currencyPair.quoteCurrency, -blockedAmount)
         } else {
-            val currentBlockedBaseBalance = user.wallet.blockedBaseBalances.getOrDefault(currencyPair.baseCurrency, BigDecimal.ZERO)
-            user.wallet.blockedBaseBalances[currencyPair.baseCurrency] = currentBlockedBaseBalance - order.quantity
+            user.wallet.updateBlockedBaseBalance(currencyPair.baseCurrency, -order.quantity)
         }
 
         userService.update(user)
