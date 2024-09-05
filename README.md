@@ -42,7 +42,7 @@ The application will start listening on port 8080.
 
 ## Solution :
 
-- **The application provides endpoints for creating users and performing basic operations related to asset exchanges and limit order management. For simplicity, the exchange service currently supports only the `USDCBTC` currency pair.**
+- **The application provides endpoints for creating users and performing basic operations related to asset exchanges and limit order management. For simplicity, the exchange service currently supports only the `BTCUSDC` currency pair.**
 
 - **To execute a trade, the exchange service matches a buyer with a seller based on the specified quantity and the given buy or sell price.**
 
